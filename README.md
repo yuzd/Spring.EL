@@ -1,48 +1,43 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Spring.Core.TypeResolution;
-using Spring.Expressions;
+# Spring EL 表达式是什么？
+Spring3中引入了Spring表达式语言—SpringEL,SpEL是一种强大,简洁的装配Bean的方式,他可以通过运行期间执行的表达式将值装配到我们的属性或构造函数当中,更可以调用C#中提供的静态常量,获取外部json xml文件中的的配置值
 
-namespace SpringELTest
-{
-    /// <summary>
-    /// https://www.springframework.net/doc-latest/reference/html/expressions.html
-    /// </summary>
-    [TestClass]
-    public class SpringELUnitTest
-    {
-        [TestMethod]
-        public void TestMethod_01()
-        {
-            Inventor tesla = new Inventor("Nikola Tesla", new DateTime(1856, 7, 9), "Serbian");
+# 为什么要使用SpringEL?
+可以方便的注入 外部配置文件到 类的构造方法，属性或者 字段，
+支持注入容器里面的对象的某个属性值，还可以调用对象的方法，功能非常的强大，请看官方文档的例子或者下面我的单元测试例子
 
-            tesla.PlaceOfBirth.City = "Smiljan";
+官方：https://www.springframework.net/doc-latest/reference/html/expressions.html
 
-            string evaluatedName = (string)ExpressionEvaluator.GetValue(tesla, "Name");
+**el表达式灵活使用能极大提高代码的活性**
 
-            Assert.AreEqual("Nikola Tesla", evaluatedName);
+# SpringEL 如何使用
 
-            string evaluatedCity = (string)ExpressionEvaluator.GetValue(tesla, "PlaceOfBirth.City");
+NUGET地址：
+<PackageReference Include="Spring.EL" Version="1.0.1" />
 
-            Assert.AreEqual("Smiljan", evaluatedCity);
+该项目是从spring.core项目抽取出来的，因为我只想用 EL 功能，其他的功能我都去掉了。
 
+```csharp 
 
-            int year = (int)ExpressionEvaluator.GetValue(tesla, "DOB.Year");  // 1856
+外部暴露的对象有下面几个重要对象
 
-            Assert.AreEqual(1856, year);
+- ExpressionEvaluator 提供了很关键的几个静态方法
 
-            ExpressionEvaluator.SetValue(tesla, "PlaceOfBirth.City", "Novi Sad");
+public static object GetValue(object root, string expression);
 
+public static object GetValue(object root, string expression, IDictionary variables)
 
-            evaluatedCity = (string)ExpressionEvaluator.GetValue(tesla, "PlaceOfBirth.City");
+public static void SetValue(object root, string expression, object newValue)
 
-            Assert.AreEqual("Novi Sad", evaluatedCity);
-        }
+public static void SetValue(object root, string expression, IDictionary variables, object newValue)
 
+```
 
+## 对象的某个属性获取和重新赋值
+![image](https://images4.c-ctrip.com/target/zb051900000162lqtB787.png)
+![image](https://images4.c-ctrip.com/target/zb0219000001676eo1273.png)
+## 文字表达式
+
+```csharp
         [TestMethod]
         public void TestMethod_02()
         {
@@ -63,6 +58,12 @@ namespace SpringELTest
             object nullValue = ExpressionEvaluator.GetValue(null, "null");
         }
 
+```
+
+
+## Properties, Arrays, Lists, Dictionaries, Indexers
+
+```csharp
 
         [TestMethod]
         public void TestMethod_03()
@@ -76,16 +77,22 @@ namespace SpringELTest
 
 
             string invention1 = (string)ExpressionEvaluator.GetValue(tesla, "Members[0].Inventions[2]"); // "Wireless communication"
-        }
-        [TestMethod]
-        public void TestMethod_04()
-        {
+            
+            
             Bar bar = new Bar();
 
             int val = (int)ExpressionEvaluator.GetValue(bar, "[1]"); // evaluated to 2
 
             ExpressionEvaluator.SetValue(bar, "[1]", 3);  // set value to 3
+            
         }
+        
+```
+
+
+## Defining Arrays, Lists and Dictionaries Inline
+
+```csharp
         [TestMethod]
         public void TestMethod_05()
         {
@@ -98,6 +105,11 @@ namespace SpringELTest
 
         }
 
+```
+
+## Methods
+
+```csharp
 
         [TestMethod]
         public void TestMethod_06()
@@ -114,7 +126,12 @@ namespace SpringELTest
             int age = (int)ExpressionEvaluator.GetValue(tesla, "Members[0].GetAge(date('2005-01-01'))"); // 149 (eww..a big anniversary is coming up ;)
 
         }
+        
+```
 
+## Relational operators
+
+```csharp
 
         [TestMethod]
         public void TestMethod_07()
@@ -129,25 +146,8 @@ namespace SpringELTest
 
             var a15 = ExpressionEvaluator.GetValue(null, "'Test' >= 'test'"); // true
 
-        }
 
-
-        [TestMethod]
-        public void TestMethod_08()
-        {
-            FooColor fColor = new FooColor();
-
-            ExpressionEvaluator.SetValue(fColor, "Color", KnownColor.Blue);
-
-            bool trueValue = (bool)ExpressionEvaluator.GetValue(fColor, "Color == KnownColor.Blue"); //true
-
-        }
-
-
-        [TestMethod]
-        public void TestMethod_09()
-        {
-            var a1 = ExpressionEvaluator.GetValue(null, "3 in {1, 2, 3, 4, 5}");  // true
+            a1 = ExpressionEvaluator.GetValue(null, "3 in {1, 2, 3, 4, 5}");  // true
 
             a1 = ExpressionEvaluator.GetValue(null, "'Abc' like '[A-Z]b*'");  // true
 
@@ -163,8 +163,14 @@ namespace SpringELTest
 
             a1 = ExpressionEvaluator.GetValue(null, "'5.0067' matches '^-?\\d+(\\.\\d{2})?$'");  // false
             a1 = ExpressionEvaluator.GetValue(null, @"'5.00' matches '^-?\d+(\.\d{2})?$'"); // true
-
         }
+        
+```
+
+## Logical operators
+
+
+```csharp
 
         [TestMethod]
         public void TestMethod_10()
@@ -191,6 +197,12 @@ namespace SpringELTest
 
         }
 
+```
+
+
+## Bitwise operators
+
+```csharp
         [TestMethod]
         public void TestMethod_11()
         {
@@ -207,6 +219,11 @@ namespace SpringELTest
             result = (int)ExpressionEvaluator.GetValue(null, "!1"); // ~1
 
         }
+```
+
+## Mathematical operators
+
+```csharp
 
         [TestMethod]
         public void TestMethod_12()
@@ -254,6 +271,12 @@ namespace SpringELTest
 
         }
 
+```
+
+
+## Assignment
+
+```csharp
         [TestMethod]
         public void TestMethod_13()
         {
@@ -262,10 +285,14 @@ namespace SpringELTest
             String aleks = (String)ExpressionEvaluator.GetValue(inventor, "Name = 'Aleksandar Seovic'");
 
             DateTime dt = (DateTime)ExpressionEvaluator.GetValue(inventor, "DOB = date('1974-08-24')");
-
-
-
         }
+```
+
+
+## Expression lists
+
+
+```csharp
 
         [TestMethod]
         public void TestMethod_14()
@@ -273,11 +300,14 @@ namespace SpringELTest
             Inventor ieee = new Inventor("Nikola Tesla", new DateTime(1856, 7, 9), "Serbian");
 
             String pupin = (String)ExpressionEvaluator.GetValue(ieee.Members, "([1].Place.City = 'Beograd'; [1].Place.Name = 'Serbia'; [1].Name)");
-
-
-
         }
+```
 
+
+## Types
+
+```csharp
+        
         [TestMethod]
         public void TestMethod_15()
         {
@@ -286,12 +316,6 @@ namespace SpringELTest
             var a2 = ExpressionEvaluator.GetValue(null, "DateTime.Today");
             var a3 = ExpressionEvaluator.GetValue(null, "new string[] {'abc', 'efg'}");
 
-
-        }
-
-        [TestMethod]
-        public void TestMethod_16()
-        {
             Inventor tesla = new Inventor("Nikola Tesla", new DateTime(1856, 7, 9), "Serbian");
             Type dateType = (Type)ExpressionEvaluator.GetValue(null, "T(System.DateTime)");
 
@@ -302,6 +326,11 @@ namespace SpringELTest
 
         }
 
+```
+
+## Type Registration & Constructors
+
+```csharp
         [TestMethod]
         public void TestMethod_17()
         {
@@ -318,13 +347,11 @@ namespace SpringELTest
             Inventor aleks = (Inventor)ExpressionEvaluator.GetValue(null, "new Inventor('Aleksandar Seovic', date('1974-08-24'), 'Serbian', Inventions = new string[]{'SPELL'})");
         }
 
+```
 
-        [TestMethod]
-        public void TestMethod_18()
-        {
-            TypeRegistry.RegisterType(typeof(WebMethodAttribute));
-            WebMethodAttribute webMethod = (WebMethodAttribute)ExpressionEvaluator.GetValue(null, "@[WebMethod(true, CacheDuration = 60, Description = 'My Web Method')]");
-        }
+## Variables
+
+```csharp
 
         [TestMethod]
         public void TestMethod_19()
@@ -343,7 +370,12 @@ namespace SpringELTest
             Inventor2 pupin = (Inventor2)ExpressionEvaluator.GetValue(tesla, "Officers[#prez]", vars);
 
         }
+        
+```
 
+## The '#this' and '#root' variables
+
+```csharp
         [TestMethod]
         public void TestMethod_20()
         {
@@ -354,14 +386,18 @@ namespace SpringELTest
 
             var a2 = ExpressionEvaluator.GetValue(ieee, "Officers['president'].( #root.Officers.Remove('president'); #this )");
         }
+```
+
+
+## Ternary Operator (If-Then-Else)
+```csharp
 
         [TestMethod]
         public void TestMethod_21()
         {
             String aTrueString = (String)ExpressionEvaluator.GetValue(null, "false ? 'trueExp' : 'falseExp'"); // trueExp
         }
-
-
+        
         [TestMethod]
         public void TestMethod_22()
         {
@@ -376,7 +412,12 @@ namespace SpringELTest
 
             String queryResultString = (String)ExpressionEvaluator.GetValue(ieee, expression, vars);
         }
+        
+```
 
+## List Projection and Selection
+
+```csharp
         [TestMethod]
         public void TestMethod_23()
         {
@@ -398,6 +439,11 @@ namespace SpringELTest
 
         }
 
+```
+
+## Collection Processors and Aggregators
+
+```csharp
         [TestMethod]
         public void TestMethod_24()
         {
@@ -422,19 +468,12 @@ namespace SpringELTest
             a2 = ExpressionEvaluator.GetValue(null,
                 "{ 'abc', 'xyz', 'abc', 'def', null, 'def' }.distinct(false).sort()"); // { 'abc', 'def', 'xyz' }
         }
-        private delegate double DoubleFunctionTwoArgs(double arg1, double arg2);
-        private double Max(double arg1, double arg2)
-        {
-            return Math.Max(arg1, arg2);
-        }
-        [TestMethod]
-        public void TestMethod_25()
-        {
-            Dictionary<string,object> vars = new Dictionary<string, object>();
-            vars["max"] = new DoubleFunctionTwoArgs(Max);
-            double result = (double)ExpressionEvaluator.GetValue(null, "#max(5,25)", vars);  // 25
-        }
+```
 
+
+## DI Object References
+
+```csharp
         [TestMethod]
         public void TestMethod_26()
         {
@@ -448,132 +487,6 @@ namespace SpringELTest
             var IsMember = ExpressionEvaluator.GetValue(null, "@(Inventor).IsMember('Nikola Tesla1')", vars);
 
         }
-    }
-    public class Inventor2
-    {
-        public string Name { get; set; }
-        public DateTime DOB { get; set; }
-        public string Serbian { get; set; }
-        public PlaceOfBirth PlaceOfBirth { get; set; }
-
-        public string[] Inventions = new[] { "1", "2", "Induction motor" };
-        public List<PlaceOfBirth> Members = new List<PlaceOfBirth> { new PlaceOfBirth("Nikola Tesla"), new PlaceOfBirth("1"), new PlaceOfBirth("3") };
+```
 
 
-        public Inventor2(string nikolaTesla, DateTime dateTime, string serbian)
-        {
-            Name = nikolaTesla;
-            DOB = dateTime;
-            Serbian = serbian;
-            PlaceOfBirth = new PlaceOfBirth();
-        }
-
-        public bool IsMember(string name)
-        {
-            return name == "Nikola Tesla" || name == "Mihajlo Pupin";
-        }
-    }
-    public class Inventor
-    {
-        public string Name { get; set; }
-        public DateTime DOB { get; set; }
-        public string Serbian { get; set; }
-        public PlaceOfBirth PlaceOfBirth { get; set; }
-
-        public string[] Inventions = new[] { "1", "2", "Induction motor" };
-        public PlaceOfBirth[] Members = new PlaceOfBirth[3] { new PlaceOfBirth("Nikola Tesla"), new PlaceOfBirth("1"), new PlaceOfBirth("3") };
-
-
-        public Inventor(string nikolaTesla, DateTime dateTime, string serbian)
-        {
-            Name = nikolaTesla;
-            DOB = dateTime;
-            Serbian = serbian;
-            PlaceOfBirth = new PlaceOfBirth();
-        }
-
-        public Dictionary<string, Inventor2> Officers = new Dictionary<string, Inventor2> { { "president", new Inventor2("ddd", DateTime.Now, "dd") } };
-
-        public bool IsMember(string name)
-        {
-            return name == "Nikola Tesla" || name == "Mihajlo Pupin";
-        }
-    }
-    public class Bar
-    {
-        private int[] numbers = new int[] { 1, 2, 3 };
-
-        public int this[int index]
-        {
-            get { return numbers[index]; }
-            set { numbers[index] = value; }
-        }
-    }
-    public class PlaceOfBirth
-    {
-
-        public PlaceOfBirth()
-        {
-
-        }
-        public string[] Inventions = new[] { "1", "2", "Induction motor" };
-        public PlaceOfBirth(string name)
-        {
-            Name = name;
-        }
-        public string City { get; set; }
-        public string Name { get; set; }
-
-        public Place Place { get; set; } = new Place();
-
-        public int GetAge(DateTime time)
-        {
-            return 30;
-        }
-    }
-    public class Place
-    {
-
-        public Place()
-        {
-
-        }
-
-        public string City { get; set; }
-        public string Name { get; set; }
-
-
-        public int GetAge(DateTime time)
-        {
-            return 30;
-        }
-    }
-    public class FooColor
-    {
-        private KnownColor knownColor;
-
-        public KnownColor Color
-        {
-            get { return knownColor; }
-            set { knownColor = value; }
-        }
-    }
-
-    public class WebMethodAttribute : Attribute
-    {
-        public WebMethodAttribute(bool isWeb)
-        {
-            this.IsWeb = isWeb;
-        }
-        public bool IsWeb { get; set; }
-
-        public int CacheDuration { get; set; }
-        public string Description { get; set; }
-    }
-
-    public enum KnownColor
-    {
-        Red,
-        Blue
-    }
-}

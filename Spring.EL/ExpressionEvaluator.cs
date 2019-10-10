@@ -18,10 +18,13 @@
 
 #endregion
 
-using System.Collections.Generic;
+ using System;
+ using System.Collections.Generic;
 
 namespace Spring.Expressions
 {
+    public delegate object SprintContextResove(string key); 
+
     /// <summary>
     /// Utility class that enables easy expression evaluation.
     /// </summary>

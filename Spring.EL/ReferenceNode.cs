@@ -24,6 +24,8 @@ using Spring.Expressions;
 
 namespace Spring.Context.Support
 {
+    
+
     /// <summary>
     /// Represents a reference to a Spring-managed object.
     /// </summary>
@@ -31,6 +33,7 @@ namespace Spring.Context.Support
     [Serializable]
     public class ReferenceNode : BaseNode
     {
+         
         /// <summary>
         /// Create a new instance
         /// </summary>
@@ -54,21 +57,23 @@ namespace Spring.Context.Support
         /// <returns>Node's value.</returns>
         protected override object Get(object context, EvaluationContext evalContext)
         {
-            string objectName;
+            if (!evalContext.Variables.TryGetValue("_sprint_context_resove_", out object Resove))
+            {
+                return null;
+            }
 
+            string objectName;
             if (this.getNumberOfChildren() == 2)
             {
-                string contextName = this.getFirstChild().getText();
                 objectName = this.getFirstChild().getNextSibling().getText();
-                
             }
             else
             {
                 objectName = this.getFirstChild().getText();
-               
             }
 
-            return null;
+            SprintContextResove deResove = (SprintContextResove) Resove;
+            return deResove.Invoke(objectName);
         }
     }
 }
