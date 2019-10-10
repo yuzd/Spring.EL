@@ -9,7 +9,7 @@ using Spring.Expressions;
 namespace SpringELTest
 {
     [TestClass]
-    public class UnitTest1
+    public class SpringELUnitTest
     {
         [TestMethod]
         public void TestMethod_01()
@@ -554,5 +554,11 @@ namespace SpringELTest
 
         public int CacheDuration { get; set; }
         public string Description { get; set; }
+    }
+
+    public enum KnownColor
+    {
+        Red,
+        Blue
     }
 }
