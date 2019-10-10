@@ -45,9 +45,13 @@ namespace SpringELTest
         [TestMethod]
         public void TestMethod_02()
         {
+            string tonyPizza = (string)ExpressionEvaluator.GetValue(null, "'Tony''s Pizza'"); // evals to "Tony's Pizza"
+
+
+
             string helloWorld = (string)ExpressionEvaluator.GetValue(null, "'Hello World'"); // evals to "Hello World"
 
-            //string tonyPizza = (string)ExpressionEvaluator.GetValue(null, "'Tony\\'s Pizza'"); // evals to "Tony's Pizza"
+           
 
             double avogadrosNumber = (double)ExpressionEvaluator.GetValue(null, "6.0221415E+23");
 
