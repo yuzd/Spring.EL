@@ -2,17 +2,16 @@
 Spring3中引入了Spring表达式语言—SpringEL,SpEL是一种强大,简洁的装配Bean的方式,他可以通过运行期间执行的表达式将值装配到我们的属性或构造函数当中,更可以调用C#中提供的静态常量,获取外部json xml文件中的的配置值
 
 # 为什么要使用SpringEL?
-可以方便的注入 外部配置文件到 类的构造方法，属性或者 字段，
-支持注入容器里面的对象的某个属性值，还可以调用对象的方法，功能非常的强大，请看官方文档的例子或者下面我的单元测试例子
+可以方便的注入 外部配置文件到 类的构造方法，属性或者 字段，支持注入容器里面的对象的某个属性值，还可以调用对象的方法，功能非常的强大，请看官方文档的例子或者下面我的单元测试例子
 
-官方：https://www.springframework.net/doc-latest/reference/html/expressions.html
+ [SpringEL与Autofac容器相结合框架](https://github.com/yuzd/Autofac.Annotation)
 
 **el表达式灵活使用能极大提高代码的活性**
 
 # SpringEL 如何使用
 
 NUGET地址：
-<PackageReference Include="Spring.EL" Version="1.0.1" />
+Install-Package Spring.EL
 
 该项目是从spring.core项目抽取出来的，因为我只想用 EL 功能，其他的功能我都去掉了。
 
@@ -31,6 +30,9 @@ public static void SetValue(object root, string expression, object newValue)
 public static void SetValue(object root, string expression, IDictionary variables, object newValue)
 
 ```
+
+ [Spring官方文档](https://www.springframework.net/doc-latest/reference/html/expressions.html)
+
 
 ## 对象的某个属性获取和重新赋值
 ![image](https://images4.c-ctrip.com/target/zb051900000162lqtB787.png)
