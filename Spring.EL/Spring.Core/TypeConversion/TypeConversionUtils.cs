@@ -113,6 +113,11 @@ namespace Spring.Core.TypeConversion
                         ICollection elements = (ICollection)newValue;
                         return ToTypedCollectionWithTypeConversion(typeof(List<>), componentType, elements, propertyName);
                     }
+                    else if (newValue is string)
+                    {
+                        string[] elements = StringUtils.CommaDelimitedListToStringArray((string)newValue);
+                        return ToTypedCollectionWithTypeConversion(typeof(List<>),componentType, elements, propertyName);
+                    }
                 }
 
                 // if required type is some IDictionary<K,V>, convert all the elements
