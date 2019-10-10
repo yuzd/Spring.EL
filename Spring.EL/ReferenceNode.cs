@@ -19,7 +19,9 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Runtime.Serialization;
+using Spring.Core;
 using Spring.Expressions;
 
 namespace Spring.Context.Support
@@ -73,7 +75,22 @@ namespace Spring.Context.Support
             }
 
             SprintContextResove deResove = (SprintContextResove) Resove;
-            return deResove.Invoke(objectName);
+
+            var typeName = objectName.Split('@');
+
+            if (typeName.Length > 2)
+            {
+                throw new TypeMismatchException($"`{objectName}` formatter invalid");
+            }
+
+            Type type = System.Type.GetType(typeName[0],false);
+
+            if (type == null)
+            {
+                throw new TypeMismatchException($"`{objectName}` invalid ,can not parse `{typeName[0]}` to Csharp Type");
+            }
+
+            return deResove.Invoke(type, typeName.Length>1?typeName.Last():null);
         }
     }
 }

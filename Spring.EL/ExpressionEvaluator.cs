@@ -23,7 +23,7 @@
 
 namespace Spring.Expressions
 {
-    public delegate object SprintContextResove(string key); 
+    public delegate object SprintContextResove(Type type,string key); 
 
     /// <summary>
     /// Utility class that enables easy expression evaluation.

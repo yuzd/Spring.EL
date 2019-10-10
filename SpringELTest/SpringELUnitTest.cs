@@ -439,13 +439,14 @@ namespace SpringELTest
         public void TestMethod_26()
         {
             Dictionary<string, object> vars = new Dictionary<string, object>();
-            vars["_sprint_context_resove_"] = new SprintContextResove((name) =>
+            vars["_sprint_context_resove_"] = new SprintContextResove((type,name) =>
             {
                 if (name == "Inventor") return new Inventor("a", DateTime.Now, "d");
                 return new Inventor2("a", DateTime.Now, "d");
             });
 
-            var IsMember = ExpressionEvaluator.GetValue(null, "@(Inventor).IsMember('Nikola Tesla1')", vars);
+           // var IsMember = ExpressionEvaluator.GetValue(null, "@(Inventor).IsMember('Nikola Tesla1')", vars);
+            var IsMember2 = ExpressionEvaluator.GetValue(null, "@(SpringELTest.Inventor2,SpringELTest@ddd).IsMember('Nikola Tesla1')", vars);
 
         }
     }
