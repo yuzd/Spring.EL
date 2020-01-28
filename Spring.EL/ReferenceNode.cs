@@ -87,7 +87,7 @@ namespace Spring.Context.Support
 
             if (type == null)
             {
-                throw new TypeMismatchException($"`{objectName}` invalid ,can not parse `{typeName[0]}` to Csharp Type");
+                return deResove.Invoke(null, typeName.FirstOrDefault());
             }
 
             return deResove.Invoke(type, typeName.Length>1?typeName.Last():null);

@@ -6,7 +6,7 @@
     <Authors>yuzd</Authors>
     <Description>c#平台Spring的EL表达式</Description>
     <PackageProjectUrl>https://github.com/yuzd/Autofac.Annotation</PackageProjectUrl>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
